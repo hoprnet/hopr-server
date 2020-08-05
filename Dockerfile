@@ -18,7 +18,19 @@ RUN apt-get update && \
     fuse \
     gcc \
     cmake \
-    wget
+    wget \
+    apt-transport-https \
+    gnupg-agent \
+    software-properties-common
+
+# install envoy
+RUN curl -sL 'https://getenvoy.io/gpg' | apt-key add -
+RUN apt-key fingerprint 6FF974DB
+RUN add-apt-repository \
+  "deb [arch=amd64] https://dl.bintray.com/tetrate/getenvoy-deb $(lsb_release -cs) stable"
+RUN apt-get update && apt-get install -y getenvoy-envoy
+
+RUN yarn global add pm2
 
 RUN yarn install --build-from-source --frozen-lockfile
 
@@ -57,4 +69,9 @@ EXPOSE 50051
 
 VOLUME ["/app/db"]
 
-ENTRYPOINT ["node", "./dist/main.js"]
+# envoy
+COPY --from=build ./src/envoy/envoy.yaml.tmpl /tmpl/envoy.yaml.tmpl
+COPY --from=build ./src/envoy/docker-entrypoint.sh envoy.sh
+COPY --from=build ./src/process.yaml process.yaml
+
+CMD ["pm2-runtime", "process.yaml"]

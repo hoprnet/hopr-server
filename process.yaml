@@ -1,0 +1,7 @@
+apps:
+  - script: ./dist/main.js
+    name: "hopr-server"
+    instances: 1
+  - script: ./envoy.sh
+    name: "envoy"
+    instances: 1
