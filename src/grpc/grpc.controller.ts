@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common'
-import { GrpcMethod, RpcException } from '@nestjs/microservices'
-import { status as STATUS } from 'grpc'
+import { GrpcMethod } from '@nestjs/microservices'
 import { Subject, Observable } from 'rxjs'
 import { GrpcService } from './grpc.service'
+import { toRpcException } from './grpc.utils'
 import { StatusResponse } from '@hoprnet/hopr-protos/node/status_pb'
 import { VersionResponse } from '@hoprnet/hopr-protos/node/version_pb'
 import { ShutdownResponse } from '@hoprnet/hopr-protos/node/shutdown_pb'
@@ -27,163 +27,86 @@ export class GrpcController {
   constructor(private grpcService: GrpcService) {}
 
   @GrpcMethod('Status')
+  @toRpcException()
   async getStatus(): Promise<StatusResponse.AsObject> {
-    try {
-      return this.grpcService.getStatus()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getStatus()
   }
 
   @GrpcMethod('Version')
+  @toRpcException()
   async getVersion(): Promise<VersionResponse.AsObject> {
-    try {
-      return this.grpcService.getVersion()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getVersion()
   }
 
   @GrpcMethod('Shutdown')
+  @toRpcException()
   async shutdown(): Promise<ShutdownResponse.AsObject> {
-    try {
-      return this.grpcService.shutdown()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.shutdown()
   }
 
   @GrpcMethod('Ping')
+  @toRpcException()
   async getPing(req: PingRequest.AsObject): Promise<PingResponse.AsObject> {
-    try {
-      return this.grpcService.getPing(req)
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getPing(req)
   }
 
   @GrpcMethod('Balance')
+  @toRpcException()
   async getNativeBalance(): Promise<GetNativeBalanceResponse.AsObject> {
-    try {
-      return this.grpcService.getNativeBalance()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getNativeBalance()
   }
 
   @GrpcMethod('Balance')
+  @toRpcException()
   async getHoprBalance(): Promise<GetHoprBalanceResponse.AsObject> {
-    try {
-      return this.grpcService.getHoprBalance()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getHoprBalance()
   }
 
   @GrpcMethod('Address')
+  @toRpcException()
   async getNativeAddress(): Promise<GetNativeAddressResponse.AsObject> {
-    try {
-      return this.grpcService.getNativeAddress()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getNativeAddress()
   }
 
   @GrpcMethod('Address')
+  @toRpcException()
   async getHoprAddress(): Promise<GetHoprAddressResponse.AsObject> {
-    try {
-      return this.grpcService.getHoprAddress()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getHoprAddress()
   }
 
   @GrpcMethod('Channels')
+  @toRpcException()
   async getChannels(): Promise<GetChannelsResponse.AsObject> {
-    try {
-      return this.grpcService.getChannels()
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getChannels()
   }
 
   @GrpcMethod('Channels')
+  @toRpcException()
   async getChannelData(req: GetChannelDataRequest.AsObject): Promise<GetChannelDataResponse.AsObject> {
-    try {
-      return this.grpcService.getChannelData(req)
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.getChannelData(req)
   }
 
   @GrpcMethod('Channels')
+  @toRpcException()
   async openChannel(req: OpenChannelRequest.AsObject): Promise<OpenChannelResponse.AsObject> {
-    try {
-      return this.grpcService.openChannel(req)
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.openChannel(req)
   }
 
   @GrpcMethod('Channels')
+  @toRpcException()
   async closeChannel(req: CloseChannelRequest.AsObject): Promise<CloseChannelResponse.AsObject> {
-    try {
-      return this.grpcService.closeChannel(req)
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.closeChannel(req)
   }
 
   @GrpcMethod('Send')
+  @toRpcException()
   async send(req: SendRequest.AsObject): Promise<SendResponse.AsObject> {
-    try {
-      return this.grpcService.send(req)
-    } catch (err) {
-      throw new RpcException({
-        code: STATUS.INTERNAL,
-        message: err,
-      })
-    }
+    return this.grpcService.send(req)
   }
 
   // here we need to use 'GrpcMethod' see: https://github.com/nestjs/nest/issues/2659#issuecomment-516164027
   @GrpcMethod('Listen')
+  @toRpcException()
   async listen(req: ListenRequest.AsObject): Promise<Observable<ListenResponse.AsObject>> {
     const events = await this.grpcService.listen(req)
     const subject = new Subject<ListenResponse.AsObject>()

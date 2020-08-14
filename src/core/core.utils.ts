@@ -6,16 +6,16 @@ import PeerId from 'peer-id'
 import { u8aEquals } from '@hoprnet/hopr-utils'
 import { pubKeyToPeerId } from '@hoprnet/hopr-core/lib/utils'
 
-/*
-  A decorator function to check whether node is started,
-  if not it will throw an error
-*/
-export function mustBeStarted(): MethodDecorator {
+/**
+ * A decorator to check whether node is started,
+ * if not it will throw an error.
+ */
+export function mustBeStarted() {
   return (
     _target: CoreService,
     _key: string,
-    descriptor: TypedPropertyDescriptor<any>,
-  ): TypedPropertyDescriptor<any> => {
+    descriptor: TypedPropertyDescriptor<(...args: any[]) => any>,
+  ): typeof descriptor => {
     const originalFn = descriptor.value
 
     descriptor.value = function (...args: any[]) {
