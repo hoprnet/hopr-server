@@ -40,6 +40,8 @@ class Host {
 
 @Injectable()
 export class ParserService {
+  public readonly events = new EventEmitter();
+
   parseHost(host: string): Promise<ParserError | HoprOptions['hosts']> {
     return new Promise((resolve, reject) => {
       try {
@@ -55,14 +57,14 @@ export class ParserService {
     })
   }
 
-  outputFunctor(events: EventEmitter): (encoded: Uint8Array) => Message {
+  outputFunctor(): (encoded: Uint8Array) => Message {
     return (encoded: Uint8Array): Message => {
       const [messageBuffer, latencyBuffer] = decode(encoded) as [Buffer, Buffer]
       const message = messageBuffer.toString()
       const latency = Date.now() - parseInt(latencyBuffer.toString('hex'), 16)
 
       console.log('received message', messageBuffer.toString('hex'))
-      events.emit('message', messageBuffer)
+      this.events.emit('message', messageBuffer)
 
       return { message, latency }
     }

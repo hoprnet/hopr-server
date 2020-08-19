@@ -1,20 +1,16 @@
 import { EventEmitter } from 'events'
-import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { default as dotenvParseVariables } from 'dotenv-parse-variables'
+import { Injectable, Inject } from '@nestjs/common'
 import Hopr from '@hoprnet/hopr-core'
-import type { HoprOptions } from '@hoprnet/hopr-core'
 import type HoprCoreConnector from '@hoprnet/hopr-core-connector-interface'
 import type { Types } from '@hoprnet/hopr-core-connector-interface'
 import type { Channel } from '@hoprnet/hopr-core-connector-interface'
 import { u8aToHex, moveDecimalPoint, getBootstrapAddresses } from '@hoprnet/hopr-utils'
-import PeerInfo from 'peer-info'
 import PeerId from 'peer-id'
 import * as rlp from 'rlp'
-import { ParserService } from './parser/parser.service'
 import { mustBeStarted, getMyOpenChannels } from './core.utils'
 import { pubKeyToPeerId } from '@hoprnet/hopr-core/lib/utils' // @TODO: expose unofficial API
 import { getNode, setNode } from './hoprnode'
+import { ParserService } from './parser/parser.service'
 
 export type StartOptions = {
   debug?: boolean
@@ -27,10 +23,9 @@ export type StartOptions = {
 
 @Injectable()
 export class CoreService {
-  private node: Hopr<HoprCoreConnector>
-  private events = new EventEmitter()
-
-  constructor(private configService: ConfigService, private parserService: ParserService) {}
+  constructor(
+    @Inject("hoprNode") private readonly node: Hopr<HoprCoreConnector>,
+    private parserService: ParserService){}
 
   @mustBeStarted()
   private async findChannel(channelId: string) {
@@ -53,75 +48,18 @@ export class CoreService {
   // @TODO: handle if already starting
   async start(): Promise<void> {
     if (this.started) return
-
-    if (getNode() !== undefined) {
-      // node exists
-      this.node = getNode()
-    } else {
-      const envOptions = dotenvParseVariables({
-        debug: this.configService.get('DEBUG'),
-        id: this.configService.get('ID'),
-        bootstrapNode: this.configService.get('BOOTSTRAP_NODE'),
-        host: this.configService.get('CORE_HOST'),
-        bootstrapServers: this.configService.get('BOOTSTRAP_SERVERS'),
-        provider: this.configService.get('PROVIDER'),
-      }) as StartOptions
-
-      // if only one server is provided, parser will parse it into a string
-      if (typeof envOptions.bootstrapServers === 'string') {
-        envOptions.bootstrapServers = [envOptions.bootstrapServers]
-      }
-
-      let bootstrapServers
-      // At the moment, if it's run as a bootstrap node, we shouldn't add
-      // boostrap nodes.
-      if (!envOptions.bootstrapNode){
-        console.log(":: Starting a server ::", envOptions)
-        const bootstrapServerMap = await getBootstrapAddresses(envOptions.bootstrapServers ? envOptions.bootstrapServers.join(','): undefined)
-        bootstrapServers = [... bootstrapServerMap.values()]
-      } else {
-        bootstrapServers = []
-      }
-
-      const options = {
-        id: envOptions.id,
-        debug: envOptions.debug ?? false,
-        bootstrapNode: envOptions.bootstrapNode ?? false,
-        network: 'ethereum',
-        // using testnet bootstrap servers
-        bootstrapServers: bootstrapServers,
-        provider: envOptions.provider ?? 'wss://kovan.infura.io/ws/v3/f7240372c1b442a6885ce9bb825ebc36',
-        host: envOptions.host ?? '0.0.0.0:9091',
-        password: 'switzerland',
-      }
-
-      console.log(':: HOPR Options ::', options)
-      console.log(':: Starting HOPR Core Node ::')
-      setNode(await Hopr.create({
-        id: options.id,
-        debug: options.debug,
-        bootstrapNode: options.bootstrapNode,
-        network: options.network,
-        bootstrapServers: options.bootstrapServers,
-        provider: options.provider,
-        hosts: (await this.parserService.parseHost(options.host)) as HoprOptions['hosts'],
-        password: options.password,
-        // @TODO: deprecate this, refactor hopr-core to not expect an output function
-        output: this.parserService.outputFunctor(this.events),
-      }))
-      this.node = getNode()
-      console.log(':: HOPR Core Node Started ::')
-    }
+    console.log(':: Starting HOPR Core Node ::')
+    await this.node.start()
+    console.log(':: HOPR Core Node Started ::')
+    return;
   } 
 
 
   // @TODO: handle if already stopping
   async stop(): Promise<{ timestamp: number }> {
     if (!this.started) return
-
     console.log(':: Stopping HOPR Core Node ::')
     await this.node.stop()
-    this.node = undefined
     console.log(':: HOPR Core Node Stopped ::')
     return {
       timestamp: Math.floor(new Date().valueOf() / 1e3),
@@ -311,6 +249,6 @@ export class CoreService {
 
   @mustBeStarted()
   async listen({ peerId }: { peerId?: string }): Promise<EventEmitter> {
-    return this.events
+    return this.parserService.events
   }
 }

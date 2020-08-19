@@ -1,6 +1,6 @@
 import { TextEncoder } from 'util'
 import { Test } from '@nestjs/testing'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { INestApplication } from '@nestjs/common'
 import { Transport } from '@nestjs/microservices'
 import { Ganache } from '@hoprnet/hopr-testing'
@@ -29,6 +29,9 @@ import { SendClient } from '@hoprnet/hopr-protos/node/send_grpc_pb'
 import { SendRequest } from '@hoprnet/hopr-protos/node/send_pb'
 import { ListenClient } from '@hoprnet/hopr-protos/node/listen_grpc_pb'
 import { ListenRequest, ListenResponse } from '@hoprnet/hopr-protos/node/listen_pb'
+import { hoprFactory } from '../src/core/core.factory'
+import { ParserService } from '../src/core/parser/parser.service'
+import { CoreService } from '../src/core/core.service'
 
 // configuration for each node we are going to boot
 const NODES: {
