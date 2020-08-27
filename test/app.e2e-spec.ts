@@ -30,6 +30,10 @@ import { SendClient } from '@hoprnet/hopr-protos/node/send_grpc_pb'
 import { SendRequest } from '@hoprnet/hopr-protos/node/send_pb'
 import { ListenClient } from '@hoprnet/hopr-protos/node/listen_grpc_pb'
 import { ListenRequest, ListenResponse } from '@hoprnet/hopr-protos/node/listen_pb'
+import { WithdrawClient } from '@hoprnet/hopr-protos/node/withdraw_grpc_pb'
+import { WithdrawNativeRequest, WithdrawHoprRequest } from '@hoprnet/hopr-protos/node/withdraw_pb'
+import { BalanceClient } from '@hoprnet/hopr-protos/node/balance_grpc_pb'
+import { GetNativeBalanceRequest, GetHoprBalanceRequest } from '@hoprnet/hopr-protos/node/balance_pb'
 
 // configuration for each node we are going to boot
 const NODES: {
@@ -377,6 +381,68 @@ describe('GRPC transport', () => {
 
       const data = res.toObject()
       expect(data.channelId).toBe(aliceAndBobChannelId)
+
+      client.close()
+      done()
+    })
+  })
+
+  it("should get Alice's NATIVE balance", async (done) => {
+    const client = SetupClient(BalanceClient, 'alice')
+
+    const req = new GetNativeBalanceRequest()
+
+    client.getNativeBalance(req, (err, res) => {
+      expect(err).toBeFalsy()
+
+      const data = res.toObject()
+      expect(Number(data.amount)).toBeGreaterThan(0)
+
+      client.close()
+      done()
+    })
+  })
+
+  it("should get Alice's HOPR balance", async (done) => {
+    const client = SetupClient(BalanceClient, 'alice')
+
+    const req = new GetHoprBalanceRequest()
+
+    client.getHoprBalance(req, (err, res) => {
+      expect(err).toBeFalsy()
+
+      const data = res.toObject()
+      expect(Number(data.amount)).toBeGreaterThan(0)
+
+      client.close()
+      done()
+    })
+  })
+
+  it('should withdraw 1 wei from Alice', async (done) => {
+    const client = SetupClient(WithdrawClient, 'alice')
+
+    const req = new WithdrawNativeRequest()
+    req.setRecipient(NODES.alice.nativeAddress)
+    req.setAmount('1')
+
+    client.withdrawNative(req, (err, res) => {
+      expect(err).toBeFalsy()
+
+      client.close()
+      done()
+    })
+  })
+
+  it('should withdraw 1 HOPR wei from Alice', async (done) => {
+    const client = SetupClient(WithdrawClient, 'alice')
+
+    const req = new WithdrawHoprRequest()
+    req.setRecipient(NODES.alice.nativeAddress)
+    req.setAmount('1')
+
+    client.withdrawHopr(req, (err, res) => {
+      expect(err).toBeFalsy()
 
       client.close()
       done()
