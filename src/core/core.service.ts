@@ -268,7 +268,7 @@ export class CoreService {
 
     await connector.channel.create(
       counterPartyPubKey,
-      async () => pubKeyToAccountId(await this.node.interactions.payments.onChainKey.interact(counterParty)),
+      async () => this.node.interactions.payments.onChainKey.interact(counterParty),
       channelBalance,
       (balance: Types.ChannelBalance): Promise<Types.SignedChannel> => {
         return this.node.interactions.payments.open.interact(counterParty, balance)

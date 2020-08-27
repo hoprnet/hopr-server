@@ -110,7 +110,7 @@ describe('GRPC transport', () => {
   let bob: INestApplication
 
   beforeAll(async () => {
-    jest.setTimeout(30e3)
+    jest.setTimeout(90e3)
 
     // setup blockchain, migrate contracts, fund accounts
     await ganache.start()
