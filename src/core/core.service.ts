@@ -6,7 +6,7 @@ import Hopr from '@hoprnet/hopr-core'
 import type { HoprOptions } from '@hoprnet/hopr-core'
 import type HoprCoreConnector from '@hoprnet/hopr-core-connector-interface'
 import type { Channel, Types, Currencies } from '@hoprnet/hopr-core-connector-interface'
-import { u8aToHex, moveDecimalPoint, getBootstrapAddresses } from '@hoprnet/hopr-utils'
+import { u8aToHex, getBootstrapAddresses } from '@hoprnet/hopr-utils'
 import PeerId from 'peer-id'
 import * as rlp from 'rlp'
 import { ParserService } from './parser/parser.service'
@@ -320,7 +320,7 @@ export class CoreService {
     currency: Currencies
     recipient: string
     amount: string
-  }): Promise<{}> {
+  }): Promise<Record<string, any>> {
     await this.node.paymentChannels.withdraw(currency, recipient, amount)
 
     return {}
