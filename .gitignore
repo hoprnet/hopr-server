@@ -46,3 +46,8 @@ lib/
 
 # Exclude .env
 .env
+
+# Exclude nodes
+.alice
+.bob
+.charlie
