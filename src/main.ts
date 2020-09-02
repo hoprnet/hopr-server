@@ -14,7 +14,7 @@ export type ServerOpts = {
 
 export async function startServer(node?: Hopr<HoprCoreConnector>, opts?: ServerOpts) {
   console.log(':: HOPR Server Starting ::')
-  const host = opts ? opts.host : '0.0.0.0:50051'
+  const host = (opts && opts.host) ? opts.host : '0.0.0.0:50051'
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule.register({
       node,
