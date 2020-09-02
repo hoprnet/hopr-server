@@ -5,7 +5,6 @@ import { INestApplication } from '@nestjs/common'
 import { Transport } from '@nestjs/microservices'
 import { Ganache } from '@hoprnet/hopr-testing'
 import { migrate, fund } from '@hoprnet/hopr-ethereum'
-import { durations } from '@hoprnet/hopr-utils'
 import * as grpc from 'grpc'
 import { AppModule } from '../src/app.module'
 import { HOPR_PROTOS_FOLDER_DIR, PROTO_PACKAGES, PROTO_FILES } from '../src/constants'
@@ -126,7 +125,7 @@ describe('GRPC transport', () => {
         url: NODES.bootstrap.serverHost,
       },
       {
-        DEBUG: true,
+        DEBUG_MODE: true,
         ID: NODES.bootstrap.id,
         BOOTSTRAP_NODE: true,
         CORE_HOST: NODES.bootstrap.coreHost,
@@ -139,7 +138,7 @@ describe('GRPC transport', () => {
         url: NODES.alice.serverHost,
       },
       {
-        DEBUG: true,
+        DEBUG_MODE: true,
         ID: NODES.alice.id,
         BOOTSTRAP_NODE: false,
         CORE_HOST: NODES.alice.coreHost,
@@ -155,7 +154,7 @@ describe('GRPC transport', () => {
         url: NODES.bob.serverHost,
       },
       {
-        DEBUG: true,
+        DEBUG_MODE: true,
         ID: NODES.bob.id,
         BOOTSTRAP_NODE: false,
         CORE_HOST: NODES.bob.coreHost,

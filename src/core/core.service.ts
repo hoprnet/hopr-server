@@ -15,7 +15,7 @@ import { pubKeyToPeerId } from '@hoprnet/hopr-core/lib/utils' // @TODO: expose u
 import { PROVIDER_NAME as HOPR_NODE_PROVIDER } from '../node.module'
 
 export type StartOptions = {
-  debug?: boolean
+  debug_mode?: boolean
   id?: number
   bootstrapNode?: boolean
   host?: string
@@ -57,7 +57,7 @@ export class CoreService {
     if (typeof this.node !== 'undefined') return
 
     const envOptions = dotenvParseVariables({
-      debug: this.configService.get('DEBUG_MODE'),
+      debug_mode: this.configService.get('DEBUG_MODE'),
       id: this.configService.get('ID'),
       bootstrapNode: this.configService.get('BOOTSTRAP_NODE'),
       host: this.configService.get('CORE_HOST'),
@@ -85,7 +85,7 @@ export class CoreService {
 
     const options = {
       id: envOptions.id,
-      debug: envOptions.debug ?? false,
+      debug: envOptions.debug_mode ?? false,
       bootstrapNode: envOptions.bootstrapNode ?? false,
       network: 'ethereum',
       // using testnet bootstrap servers
