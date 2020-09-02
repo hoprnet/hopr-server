@@ -57,7 +57,7 @@ export class CoreService {
     if (typeof this.node !== 'undefined') return
 
     const envOptions = dotenvParseVariables({
-      debug: this.configService.get('DEBUG'),
+      debug: this.configService.get('DEBUG_MODE'),
       id: this.configService.get('ID'),
       bootstrapNode: this.configService.get('BOOTSTRAP_NODE'),
       host: this.configService.get('CORE_HOST'),
