@@ -135,7 +135,7 @@ The following environment variables can be stored and used in an `.env` file loc
 | Name              | Description                                                  | Type             | Example                                                      |
 | :---------------- | :----------------------------------------------------------- | :--------------- | :----------------------------------------------------------- |
 | SERVER_HOST       | server HOST url                                              | string           | 0.0.0.0:50051                                                |
-| DEBUG             | passed to hopr-core: run in debug mode                       | boolean          | TRUE                                                         |
+| DEBUG_MODE        | passed to hopr-core: run in debug mode                       | boolean          | TRUE                                                         |
 | ID                | passed to hopr-core: demo account ID                         | integer          | 1                                                            |
 | BOOTSTRAP_NODE    | passed to hopr-core: TRUE if node is a boostrap node         | boolean          | FALSE                                                        |
 | CORE_HOST         | passed to hopr-core: hopr-core HOST url                      | string           | 0.0.0.0:9091                                                 |
