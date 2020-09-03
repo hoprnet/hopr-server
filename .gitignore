@@ -51,3 +51,5 @@ lib/
 .alice
 .bob
 .charlie
+# Exclude built npm packages
+*.tgz
