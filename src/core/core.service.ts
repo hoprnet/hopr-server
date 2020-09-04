@@ -98,19 +98,23 @@ export class CoreService {
     console.log(':: HOPR Options ::', options)
     console.log(':: Starting HOPR Core Node ::')
 
-    this.node = await Hopr.create({
-      id: options.id,
-      debug: options.debug,
-      bootstrapNode: options.bootstrapNode,
-      network: options.network,
-      bootstrapServers: options.bootstrapServers,
-      provider: options.provider,
-      hosts: (await this.parserService.parseHost(options.host)) as HoprOptions['hosts'],
-      password: options.password,
-      // @TODO: deprecate this, refactor hopr-core to not expect an output function
-      output: this.parserService.outputFunctor(this.events),
-    })
-    console.log(':: HOPR Core Node Started ::')
+    try {
+      this.node = await Hopr.create({
+        id: options.id,
+        debug: options.debug,
+        bootstrapNode: options.bootstrapNode,
+        network: options.network,
+        bootstrapServers: options.bootstrapServers,
+        provider: options.provider,
+        hosts: (await this.parserService.parseHost(options.host)) as HoprOptions['hosts'],
+        password: options.password,
+        // @TODO: deprecate this, refactor hopr-core to not expect an output function
+        output: this.parserService.outputFunctor(this.events),
+      })
+      console.log(':: HOPR Core Node Started ::')
+    } catch (err) {
+      console.log(`${err}`)
+    }
   }
 
   // @TODO: handle if already stopping
