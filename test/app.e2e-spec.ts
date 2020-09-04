@@ -275,6 +275,8 @@ describe('GRPC transport', () => {
       const data = res.toObject()
       expect(data.channelsList).toHaveLength(1)
       expect(data.channelsList[0]).toBe(aliceAndBobChannelId)
+      expect(data.totalBalance).toBe('20')
+      expect(data.myTotalBalance).toBe('20')
 
       client.close()
       done()
@@ -291,8 +293,9 @@ describe('GRPC transport', () => {
       expect(err).toBeFalsy()
 
       const data = res.toObject()
-      expect(data.balance).toBe('20')
       expect(data.state).toBe(0)
+      expect(data.totalBalance).toBe('20')
+      expect(data.myBalance).toBe('20')
 
       client.close()
       done()

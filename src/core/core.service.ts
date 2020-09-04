@@ -186,24 +186,39 @@ export class CoreService {
     {
       channelId: string
       counterParty: string
-      balance: string
       state: number
+      totalBalance: string
+      myBalance: string
       instance: Channel
     }[]
   > {
-    const channels = await getMyOpenChannels(this.node)
+    const { pubKeyToAccountId, isPartyA } = this.node.paymentChannels.utils
+
+    const [myAccountId, channels] = await Promise.all([
+      pubKeyToAccountId(this.node.peerInfo.id.pubKey.marshal()),
+      getMyOpenChannels(this.node),
+    ])
 
     return Promise.all(
       channels.map(async (channel) => {
-        const channelId = u8aToHex(await channel.channelId)
-        const counterParty = (await pubKeyToPeerId(await channel.offChainCounterparty)).toB58String()
-        const balance = (await channel.balance).toString()
+        const counterPartyPubKey = await channel.offChainCounterparty
+        const counterPartyAccountId = await pubKeyToAccountId(counterPartyPubKey)
+        const iAmPartyA = isPartyA(myAccountId, counterPartyAccountId)
+
+        const [channelId, counterParty, state, totalBalance, balance_a] = await Promise.all([
+          u8aToHex(await channel.channelId),
+          (await pubKeyToPeerId(counterPartyPubKey)).toB58String(),
+          (await channel.state).toNumber(),
+          await channel.balance,
+          await channel.balance_a,
+        ])
 
         return {
           channelId,
           counterParty,
-          balance,
-          state: 0, // @TODO: update h-c-e to provide state,
+          state,
+          totalBalance: totalBalance.toString(),
+          myBalance: (iAmPartyA ? balance_a : totalBalance.sub(balance_a)).toString(),
           instance: channel,
         }
       }),
@@ -214,14 +229,16 @@ export class CoreService {
   async getChannelData(
     channelId: string,
   ): Promise<{
-    balance: string
     state: number
+    totalBalance: string
+    myBalance: string
   }> {
     const channel = await this.findChannel(channelId)
 
     return {
-      balance: channel.balance,
       state: channel.state,
+      totalBalance: channel.totalBalance,
+      myBalance: channel.myBalance,
     }
   }
 
