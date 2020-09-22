@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events'
 import { Injectable, Inject, Optional } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Subject } from 'rxjs'
 import { default as dotenvParseVariables } from 'dotenv-parse-variables'
 import Hopr from '@hoprnet/hopr-core'
 import type { HoprOptions } from '@hoprnet/hopr-core'
@@ -25,13 +25,27 @@ export type StartOptions = {
 
 @Injectable()
 export class CoreService {
-  private events = new EventEmitter()
+  private subjects = new Map<string, Subject<any>>()
 
   constructor(
     private configService: ConfigService,
     private parserService: ParserService,
     @Optional() @Inject(HOPR_NODE_PROVIDER) private node: Hopr<HoprCoreConnector>,
   ) {}
+
+  private createAndGetSubject<T = any>(id: string): Subject<T> {
+    if (this.subjects.has(id)) return this.subjects.get(id)
+
+    const subject = new Subject<T>()
+    console.log('creating', id)
+    this.subjects.set(id, subject)
+
+    return subject
+  }
+
+  private getListenSubject(peerId?: string): Subject<{ payload: Uint8Array }> {
+    return this.createAndGetSubject<{ payload: Uint8Array }>(`listen-${peerId ?? '*'}`)
+  }
 
   @mustBeStarted()
   private async findChannel(channelId: string) {
@@ -109,7 +123,7 @@ export class CoreService {
         hosts: (await this.parserService.parseHost(options.host)) as HoprOptions['hosts'],
         password: options.password,
         // @TODO: deprecate this, refactor hopr-core to not expect an output function
-        output: this.parserService.outputFunctor(this.events),
+        output: this.parserService.outputFunctor(this.getListenSubject()),
       })
       console.log(':: HOPR Core Node Started ::')
     } catch (err) {
@@ -311,8 +325,9 @@ export class CoreService {
   }
 
   @mustBeStarted()
-  async listen({ peerId }: { peerId?: string }): Promise<EventEmitter> {
-    return this.events
+  async listen({ peerId }: { peerId?: string }): Promise<Subject<{ payload: Uint8Array }>> {
+    console.log('subjects', this.subjects.size)
+    return this.getListenSubject(peerId)
   }
 
   @mustBeStarted()

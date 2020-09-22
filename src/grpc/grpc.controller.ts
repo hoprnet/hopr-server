@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common'
 import { GrpcMethod, RpcException } from '@nestjs/microservices'
 import { status as STATUS } from 'grpc'
-import { Subject, Observable } from 'rxjs'
+import { Observable } from 'rxjs'
 import { GrpcService } from './grpc.service'
 import { StatusResponse } from '@hoprnet/hopr-protos/node/status_pb'
 import { VersionResponse } from '@hoprnet/hopr-protos/node/version_pb'
@@ -191,14 +191,7 @@ export class GrpcController {
   // here we need to use 'GrpcMethod' see: https://github.com/nestjs/nest/issues/2659#issuecomment-516164027
   @GrpcMethod('Listen')
   async listen(req: ListenRequest.AsObject): Promise<Observable<ListenResponse.AsObject>> {
-    const events = await this.grpcService.listen(req)
-    const subject = new Subject<ListenResponse.AsObject>()
-
-    events.on('message', (message) => {
-      subject.next({
-        payload: message,
-      })
-    })
+    const subject = await this.grpcService.listen(req)
 
     return subject.asObservable()
   }

@@ -1,4 +1,4 @@
-import type { EventEmitter } from 'events'
+import { Subject } from 'rxjs'
 import { Injectable } from '@nestjs/common'
 import { CoreService } from '../core/core.service'
 import { SystemService } from '../system/system.service'
@@ -127,7 +127,7 @@ export class GrpcService {
     }))
   }
 
-  async listen({ peerId }: ListenRequest.AsObject): Promise<EventEmitter> {
+  async listen({ peerId }: ListenRequest.AsObject): Promise<Subject<{ payload: Uint8Array }>> {
     return this.coreService.listen({ peerId })
   }
 

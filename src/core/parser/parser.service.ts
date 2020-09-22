@@ -1,8 +1,5 @@
-import { EventEmitter } from 'events'
+import type { Subject } from 'rxjs'
 import { Injectable } from '@nestjs/common'
-import multiaddr from 'multiaddr'
-import PeerId from 'peer-id'
-import PeerInfo from 'peer-info'
 import type { HoprOptions } from '@hoprnet/hopr-core'
 import { IsPort, IsIP } from 'class-validator'
 import { default as parseIpPort } from 'parse-ip-port'
@@ -55,14 +52,16 @@ export class ParserService {
     })
   }
 
-  outputFunctor(events: EventEmitter): (encoded: Uint8Array) => Message {
+  outputFunctor(subject: Subject<{ payload: Uint8Array }>): (encoded: Uint8Array) => Message {
     return (encoded: Uint8Array): Message => {
       const [messageBuffer, latencyBuffer] = decode(encoded) as [Buffer, Buffer]
       const message = messageBuffer.toString()
       const latency = Date.now() - parseInt(latencyBuffer.toString('hex'), 16)
 
       console.log('received message', messageBuffer.toString('hex'))
-      events.emit('message', messageBuffer)
+      subject.next({
+        payload: messageBuffer,
+      })
 
       return { message, latency }
     }
