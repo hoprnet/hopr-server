@@ -1,3 +1,8 @@
+# Announcment
+
+**Development has moved to [`hoprnet/hoprnet`](https://github.com/hoprnet/hoprnet)**
+
+---
 <!-- INTRODUCTION -->
 <p align="center">
   <a href="https://hoprnet.org" target="_blank" rel="noopener noreferrer">
